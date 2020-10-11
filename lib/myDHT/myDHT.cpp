@@ -7,6 +7,13 @@ MyDHT::MyDHT(uint8_t pin, uint8_t type)
     dhtUnified = new DHT_Unified(pin, type);
 }
 
+MyDHT::MyDHT(uint8_t pin, uint8_t type, float temperatureOffset, float humidityOffset)
+{
+    dhtUnified = new DHT_Unified(pin, type);
+    this->temperatureOffset = temperatureOffset;
+    this->humidityOffset = humidityOffset;
+}
+
 void MyDHT::InitDHT()
 {
     dhtUnified->begin();
@@ -17,7 +24,7 @@ void MyDHT::InitDHT()
 float MyDHT::ReadTemperature()
 {
     dhtUnified->temperature().getEvent(&event);
-    currentTemperature = event.temperature + temperatureCelciusOffset;
+    currentTemperature = event.temperature + temperatureOffset;
     return currentTemperature;
 }
 

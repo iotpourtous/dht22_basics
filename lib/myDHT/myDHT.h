@@ -17,12 +17,12 @@ private:
 
     uint32_t sensorDelay;
 
-    float temperatureFahrenheitOffset = 0.0;
-    float temperatureCelciusOffset = 0.0;
+    float temperatureOffset = 0.0;
     float humidityOffset = 0.0;
 
 public:
     MyDHT(uint8_t pin, uint8_t type);
+    MyDHT(uint8_t pin, uint8_t type, float temperatureOffset, float humidityOffset);
     void InitDHT();
     float ReadTemperature();
     float ReadHumidity();
