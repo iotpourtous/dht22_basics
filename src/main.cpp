@@ -1,8 +1,9 @@
 #include <Arduino.h>
+#include <myDHT.h>
 
 #include "stationMeteoDef.h"
-#include "stationMeteoVar.h"
-#include "myDHT.h"
+
+MyDHT myDHT(DHTPIN, DHTTYPE);
 
 void setup()
 {
@@ -12,10 +13,9 @@ void setup()
 
 void loop()
 {
+  delay(myDHT.SensorDelay());
 
-  delay(sensorDelay);
-
-  currentTemperature = myDHT.ReadTemperature();
+  float currentTemperature = myDHT.ReadTemperature();
   if (isnan(currentTemperature))
   {
     Serial.println(F("Error reading temperature!"));
@@ -27,7 +27,7 @@ void loop()
     Serial.println(F("°C"));
   }
 
-  currentHumidity = myDHT.ReadHumidity();
+  float currentHumidity = myDHT.ReadHumidity();
   if (isnan(currentHumidity))
   {
     Serial.println(F("Error reading humidity!"));
