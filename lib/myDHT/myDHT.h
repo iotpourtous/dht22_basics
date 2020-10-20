@@ -1,10 +1,9 @@
-#ifndef myDHT_h
-#define myDHT_h
+#ifndef MyDHT_h
+#define MyDHT_h
 
 #include <Adafruit_Sensor.h>
 #include <DHT_U.h>
 
-/** Sensor types */
 typedef enum
 {
     TCELCIUS = (0),
@@ -19,25 +18,22 @@ private:
     sensor_t sensor;
     sensors_event_t event;
 
-    temperature_type_t temperatureType = TCELCIUS;
+    temperature_type_t temperatureType;
 
-    float currentTemperature;
-    float currentHumidity;
+    float temperatureCelciusOffset;
+    float temperatureFahrenheitOffset;
+    float humidityOffset;
 
-    uint32_t sensorDelay;
-
-    float temperatureCelciusOffset = 0.0;
-    float temperatureFahrenheitOffset = 0.0;
-    float humidityOffset = 0.0;
+    float getCurrentTemperatureFromSensor();
+    float getCurrentHumidityFromSensor();
+    float temperatureFahrenheit();
 
 public:
     MyDHT(uint8_t pin, uint8_t type);
-    MyDHT(uint8_t pin, uint8_t type, uint8_t temperatureType);
-    MyDHT(uint8_t pin, uint8_t type, float temperatureCelciusOffset, float temperatureFahrenheitOffset, float humidityOffset);
-    void InitDHT();
-    float ReadTemperature();
-    float ReadHumidity();
-    uint32_t SensorDelay();
+    void begin(uint8_t = TCELCIUS, float = 0, float = 0, float = 0);
+    float temperature();
+    float humidity();
+    uint32_t sensorDelay();
 };
 
 extern MyDHT myDHT;

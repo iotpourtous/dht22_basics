@@ -7,50 +7,44 @@ MyDHT::MyDHT(uint8_t pin, uint8_t type)
     dhtUnified = new DHT_Unified(pin, type);
 }
 
-MyDHT::MyDHT(uint8_t pin, uint8_t type, uint8_t temperatureType)
+void MyDHT::begin(uint8_t temperatureType, float temperatureCelciusOffset, float temperatureFahrenheitOffset, float humidityOffset)
 {
-    dhtUnified = new DHT_Unified(pin, type);
+    dhtUnified->begin();
     this->temperatureType = temperature_type_t(temperatureType);
-}
-
-MyDHT::MyDHT(uint8_t pin, uint8_t type, float temperatureCelciusOffset, float temperatureFahrenheitOffset, float humidityOffset)
-{
-    dhtUnified = new DHT_Unified(pin, type);
     this->temperatureCelciusOffset = temperatureCelciusOffset;
     this->temperatureFahrenheitOffset = temperatureFahrenheitOffset;
     this->humidityOffset = humidityOffset;
 }
 
-void MyDHT::InitDHT()
-{
-    dhtUnified->begin();
-    dhtUnified->temperature().getSensor(&sensor);
-    sensorDelay = sensor.min_delay / 1000;
-}
-
-float MyDHT::ReadTemperature()
+float MyDHT::getCurrentTemperatureFromSensor()
 {
     dhtUnified->temperature().getEvent(&event);
-    currentTemperature = event.temperature;
-    if (temperatureType == TFAHRENHEIT)
-    {
-        currentTemperature = 1.8 * currentTemperature + 32 + temperatureFahrenheitOffset;
-    }
-    else
-    {
-        currentTemperature = event.temperature + temperatureCelciusOffset;
-    }
-    return currentTemperature;
+    return event.temperature;
 }
 
-float MyDHT::ReadHumidity()
+uint32_t MyDHT::sensorDelay()
+{
+    dhtUnified->temperature().getSensor(&sensor);
+    return sensor.min_delay / 1000;
+}
+
+float MyDHT::getCurrentHumidityFromSensor()
 {
     dhtUnified->humidity().getEvent(&event);
-    currentHumidity = event.relative_humidity + humidityOffset;
-    return currentHumidity;
+    return event.relative_humidity;
 }
 
-uint32_t MyDHT::SensorDelay()
+float MyDHT::temperature()
 {
-    return sensorDelay;
+    return (temperatureType == TFAHRENHEIT) ? temperatureFahrenheit() : getCurrentTemperatureFromSensor() + temperatureCelciusOffset;
+}
+
+float MyDHT::temperatureFahrenheit()
+{
+    return 1.8 * getCurrentTemperatureFromSensor() + 32 + temperatureFahrenheitOffset;
+}
+
+float MyDHT::humidity()
+{
+    return getCurrentHumidityFromSensor() + humidityOffset;
 }
