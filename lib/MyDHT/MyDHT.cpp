@@ -1,6 +1,6 @@
 #include <Adafruit_Sensor.h>
 
-#include "myDHT.h"
+#include "MyDHT.h"
 
 MyDHT::MyDHT(uint8_t pin, uint8_t type)
 {
