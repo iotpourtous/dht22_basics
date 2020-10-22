@@ -1,50 +1,48 @@
-#include <Adafruit_Sensor.h>
-
 #include "MyDHT.h"
 
-MyDHT::MyDHT(uint8_t pin, uint8_t type)
-{
-    dhtUnified = new DHT_Unified(pin, type);
-}
+MyDHT::MyDHT(uint8_t pin, uint8_t type, uint8_t count,
+               int32_t tempSensorId, int32_t humiditySensorId) : DHT_Unified(pin, type, count, tempSensorId, humiditySensorId) {}
 
-void MyDHT::begin(uint8_t temperatureType, float temperatureCelciusOffset, float temperatureFahrenheitOffset, float humidityOffset)
+float MyDHT::_temperatureFromEvent()
 {
-    dhtUnified->begin();
-    this->temperatureType = temperature_type_t(temperatureType);
-    this->temperatureCelciusOffset = temperatureCelciusOffset;
-    this->temperatureFahrenheitOffset = temperatureFahrenheitOffset;
-    this->humidityOffset = humidityOffset;
-}
-
-float MyDHT::getCurrentTemperatureFromSensor()
-{
-    dhtUnified->temperature().getEvent(&event);
+    sensors_event_t event;
+    DHT_Unified::temperature().getEvent(&event);
     return event.temperature;
 }
 
-uint32_t MyDHT::sensorDelay()
+float MyDHT::_humidityFromEvent()
 {
-    dhtUnified->temperature().getSensor(&sensor);
-    return sensor.min_delay / 1000;
+    sensors_event_t event;
+    DHT_Unified::humidity().getEvent(&event);
+    return event.relative_humidity;
 }
 
-float MyDHT::getCurrentHumidityFromSensor()
+int32_t MyDHT::delay()
 {
-    dhtUnified->humidity().getEvent(&event);
-    return event.relative_humidity;
+    sensor_t sensor;
+    DHT_Unified::temperature().getSensor(&sensor);
+    return sensor.min_delay / 1000;
 }
 
 float MyDHT::temperature()
 {
-    return (temperatureType == TFAHRENHEIT) ? temperatureFahrenheit() : getCurrentTemperatureFromSensor() + temperatureCelciusOffset;
-}
+    float t = _temperatureFromEvent();
 
-float MyDHT::temperatureFahrenheit()
-{
-    return 1.8 * getCurrentTemperatureFromSensor() + 32 + temperatureFahrenheitOffset;
+    if (_temperatureType == TFAHRENHEIT)
+    {
+        t = 1.8 * t + 32 + _fahrenheitOffset;
+    }
+    else
+    {
+        t += _celciusOffset;
+    }
+   _mfT.populate(t);
+    return t;
 }
 
 float MyDHT::humidity()
 {
-    return getCurrentHumidityFromSensor() + humidityOffset;
+    float h = _humidityFromEvent() + _humidityOffset;
+    _mfH.populate(h);
+    return h;
 }
