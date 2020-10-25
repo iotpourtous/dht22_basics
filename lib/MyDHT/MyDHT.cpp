@@ -1,7 +1,14 @@
 #include "MyDHT.h"
 
-MyDHT::MyDHT(uint8_t pin, uint8_t type, uint8_t count,
-               int32_t tempSensorId, int32_t humiditySensorId) : DHT_Unified(pin, type, count, tempSensorId, humiditySensorId) {}
+MyDHT::MyDHT(
+    uint8_t pin,
+    uint8_t type,
+    temperature_type_t temperatureType,
+    float temperatureOffset,
+    float humidityOffset) : DHT_Unified(pin, type),
+                            _temperatureType(temperatureType),
+                            _temperatureOffset(temperatureOffset),
+                            _humidityOffset(humidityOffset) {}
 
 float MyDHT::_temperatureFromEvent()
 {
@@ -27,22 +34,10 @@ int32_t MyDHT::delay()
 float MyDHT::temperature()
 {
     float t = _temperatureFromEvent();
-
-    if (_temperatureType == TFAHRENHEIT)
-    {
-        t = 1.8 * t + 32 + _fahrenheitOffset;
-    }
-    else
-    {
-        t += _celciusOffset;
-    }
-   _mfT.populate(t);
-    return t;
+    return ((_temperatureType == TFAHRENHEIT) ? 1.8 * t + 32 : t) + _temperatureOffset;
 }
 
 float MyDHT::humidity()
 {
-    float h = _humidityFromEvent() + _humidityOffset;
-    _mfH.populate(h);
-    return h;
+    return _humidityFromEvent() + _humidityOffset;
 }

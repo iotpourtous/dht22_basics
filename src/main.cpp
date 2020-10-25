@@ -1,9 +1,12 @@
 #include <Arduino.h>
 #include <MyDHT.h>
-
+#include <MoyenneFlottante.h>
 #include "stationMeteoDef.h"
 
 MyDHT dht(DHTPIN, DHTTYPE);
+
+MoyenneFlottante mfT;
+MoyenneFlottante mfH;
 
 float readTemperature()
 {
@@ -14,6 +17,8 @@ float readTemperature()
   }
   else
   {
+
+    mfT.populate(currentTemperature);
     Serial.print(F("Temperature: "));
     Serial.print(currentTemperature);
     Serial.println(F("°C"));
@@ -21,8 +26,9 @@ float readTemperature()
   return currentTemperature;
 }
 
-float readAverageTemperature() {
-  float averageTemperature = dht.averageTemperature();
+float readAverageTemperature()
+{
+  float averageTemperature = mfT.moyenne();
   if (isnan(averageTemperature))
   {
     Serial.println(F("Error reading averageTemperature!"));
@@ -45,6 +51,7 @@ float readHumidity()
   }
   else
   {
+    mfH.populate(currentHumidity);
     Serial.print(F("Humidity: "));
     Serial.print(currentHumidity);
     Serial.println(F("%"));
@@ -54,7 +61,7 @@ float readHumidity()
 
 float readAverageHumidity()
 {
-  float averageHumidity = dht.averageHumidity();
+  float averageHumidity = mfH.moyenne();
   if (isnan(averageHumidity))
   {
     Serial.println(F("Error reading averageHumidity!"));
@@ -67,7 +74,6 @@ float readAverageHumidity()
   }
   return averageHumidity;
 }
-
 
 void ParseCmd2()
 {
