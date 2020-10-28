@@ -1,5 +1,5 @@
-#ifndef StationMeteoDef_h
-#define StationMeteoDef_h
+#ifndef dht22Def_h
+#define dht22Def_h
 
 #define DEBUG 0
 

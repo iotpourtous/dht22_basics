@@ -28,9 +28,12 @@ public:
       temperature_type_t temperatureType = TCELCIUS,
       float temperatureOffset = 0.0,
       float humidityOffset = 0.0);
+  sensor_t temperatureSensor();
+  sensor_t humiditySensor();
   float temperatureOffset() { return _temperatureOffset; }
   void temperatureOffset(float temperatureOffset) { _temperatureOffset = temperatureOffset; }
   float humidityOffset() { return _humidityOffset; }
+  temperature_type_t temperatureType() { return _temperatureType; }
   void humidityOffset(float humidityOffset) { _humidityOffset = humidityOffset; }
   void toFahrenheit() { _temperatureType = TFAHRENHEIT; }
   void toCelcius() { _temperatureType = TCELCIUS; }
@@ -38,6 +41,18 @@ public:
   virtual float humidity();
   int32_t delay();
 };
+
+void readCommandList();
+void readTemperature();
+void readHumidity();
+void readTemperatureOffset();
+void readHumidityOffset();
+void readUnity();
+void readTemperatureSensorInfo();
+void readHumiditySensorInfo();
+
+void writeTemperatureOffset(float temperatureOffset);
+void writeHumidityOffset(float humidityOffset);
 
 extern MyDHT myDHT;
 

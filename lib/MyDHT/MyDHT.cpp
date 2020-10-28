@@ -1,4 +1,8 @@
 #include "MyDHT.h"
+#include <iostream>
+#include <exception>
+
+using namespace std;
 
 MyDHT::MyDHT(
     uint8_t pin,
@@ -14,21 +18,44 @@ float MyDHT::_temperatureFromEvent()
 {
     sensors_event_t event;
     DHT_Unified::temperature().getEvent(&event);
-    return event.temperature;
+    float t = event.temperature;
+    if (isnan(t))
+    {
+        throw "Erreur lecture température";
+    }
+    return t;
 }
 
 float MyDHT::_humidityFromEvent()
 {
     sensors_event_t event;
     DHT_Unified::humidity().getEvent(&event);
-    return event.relative_humidity;
+    float h = event.relative_humidity;
+    if (isnan(h))
+    {
+        throw "Erreur lecture humidité";
+    }
+    return h;
 }
 
-int32_t MyDHT::delay()
+sensor_t MyDHT::temperatureSensor()
 {
     sensor_t sensor;
     DHT_Unified::temperature().getSensor(&sensor);
-    return sensor.min_delay / 1000;
+    return sensor;
+}
+
+sensor_t MyDHT::humiditySensor()
+{
+    sensor_t sensor;
+    DHT_Unified::humidity().getSensor(&sensor);
+    return sensor;
+}
+
+
+int32_t MyDHT::delay()
+{
+    return temperatureSensor().min_delay / 1000;
 }
 
 float MyDHT::temperature()
