@@ -1,12 +1,7 @@
 #include <Arduino.h>
 
-#include "dht22Def.h"
 #include "dht22Var.h"
 #include "commandManager.h"
-#include <iostream>
-#include <exception>
-
-using namespace std;
 
 void setup()
 {
@@ -16,14 +11,11 @@ void setup()
 
 void loop()
 {
-
   try
   {
     commands();
-     //currentTemperature = dht->temperature();
-    // cout << "currentTemperature : " << currentTemperature << "°C" << endl;
-    // currentHumidity = dht->humidity();
-    // cout << "currentHumidity : " << currentHumidity << "%" << endl;
+    cout << "currentTemperature : " << dht->temperature() << "°C" << endl;
+    cout << "currentHumidity : " << dht->humidity() << "%" << endl;
   }
   catch (const char *msg)
   {
