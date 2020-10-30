@@ -71,15 +71,15 @@ void MyDHT::writeCommand(int sensorId, char *readData)
     case 'O':
         if (readData[1] == 'T')
         {
-            char subbuff[7];
-            memcpy(subbuff, &readData[3], 7);
+            char subbuff[6];
+            memcpy(subbuff, &readData[2], 6);
             temperatureOffset(atof(subbuff));
             cout << ">" << sensorId << "OT:" << temperatureOffset() << "°C" << endl;
         }
         else if (readData[1] == 'H')
         {
-            char subbuff[7];
-            memcpy(subbuff, &readData[3], 7);
+            char subbuff[6];
+            memcpy(subbuff, &readData[2], 6);
             humidityOffset(atof(subbuff));
             cout << ">" << sensorId << "OT:" << humidityOffset() << "%" << endl;
         }
