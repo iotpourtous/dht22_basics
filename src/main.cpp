@@ -5,7 +5,7 @@
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(SERIAL_BAUD);
   dht->begin();
 }
 

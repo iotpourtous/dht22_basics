@@ -19,6 +19,8 @@ private:
 
   float _temperatureFromEvent();
   float _humidityFromEvent();
+  sensor_t _temperatureSensor();
+  sensor_t _humiditySensor();
 
 public:
   MyDHT(
@@ -27,23 +29,27 @@ public:
       temperature_type_t temperatureType = TCELCIUS,
       float temperatureOffset = 0.0,
       float humidityOffset = 0.0);
-  sensor_t temperatureSensor();
-  sensor_t humiditySensor();
+
+
   float temperatureOffset() { return _temperatureOffset; }
   void temperatureOffset(float temperatureOffset) { _temperatureOffset = temperatureOffset; }
   float humidityOffset() { return _humidityOffset; }
-  temperature_type_t temperatureType() { return _temperatureType; }
   void humidityOffset(float humidityOffset) { _humidityOffset = humidityOffset; }
+
+  temperature_type_t temperatureType() { return _temperatureType; }
   void toFahrenheit() { _temperatureType = TFAHRENHEIT; }
   void toCelcius() { _temperatureType = TCELCIUS; }
+
   virtual float temperature();
-  virtual float humidity();
   String temperatureFormatted();
+
+  virtual float humidity();
   String humidityFormatted();
+
   int32_t delay();
 
-  String readCommand(int sensorId, char *readData);
-  String writeCommand(int sensorId, char *readData);
+  String readCommand(char *readData);
+  String writeCommand(char *readData);
 };
 
 extern MyDHT myDHT;

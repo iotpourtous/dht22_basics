@@ -14,12 +14,6 @@ float MyDHT::_temperatureFromEvent()
 {
     sensors_event_t event;
     DHT_Unified::temperature().getEvent(&event);
-    /*float t = event.temperature;
-    if (isnan(t))
-    {
-        throw "Erreur lecture température";
-    }
-    return t;*/
     return event.temperature;
 }
 
@@ -27,32 +21,21 @@ float MyDHT::_humidityFromEvent()
 {
     sensors_event_t event;
     DHT_Unified::humidity().getEvent(&event);
-    /*float h = event.relative_humidity;
-    if (isnan(h))
-    {
-        throw "Erreur lecture humidité";
-    }
-    return h;*/
     return event.relative_humidity;
 }
 
-sensor_t MyDHT::temperatureSensor()
+sensor_t MyDHT::_temperatureSensor()
 {
     sensor_t sensor;
     DHT_Unified::temperature().getSensor(&sensor);
     return sensor;
 }
 
-sensor_t MyDHT::humiditySensor()
+sensor_t MyDHT::_humiditySensor()
 {
     sensor_t sensor;
     DHT_Unified::humidity().getSensor(&sensor);
     return sensor;
-}
-
-int32_t MyDHT::delay()
-{
-    return temperatureSensor().min_delay / 1000;
 }
 
 float MyDHT::temperature()
@@ -63,7 +46,8 @@ float MyDHT::temperature()
 
 String MyDHT::temperatureFormatted()
 {
-    if(isnan(temperature())) {
+    if (isnan(temperature()))
+    {
         return "--";
     }
     char temperatureFormatted[10];
@@ -77,7 +61,8 @@ float MyDHT::humidity()
 }
 String MyDHT::humidityFormatted()
 {
-    if(isnan(humidity())) {
+    if (isnan(humidity()))
+    {
         return "--";
     }
     char humidityFormatted[10];
@@ -85,7 +70,12 @@ String MyDHT::humidityFormatted()
     return humidityFormatted;
 }
 
-String MyDHT::writeCommand(int sensorId, char *readData)
+int32_t MyDHT::delay()
+{
+    return _temperatureSensor().min_delay / 1000;
+}
+
+String MyDHT::writeCommand(char *readData)
 {
     String retour = "Commande inexistante";
     switch (readData[0])
@@ -95,63 +85,76 @@ String MyDHT::writeCommand(int sensorId, char *readData)
         {
             char subbuff[6];
             memcpy(subbuff, &readData[2], 6);
-            temperatureOffset(atof(subbuff));
-            retour = ">" + String(sensorId) + "OT:" + temperatureOffset() + "°C";
+            if (atof(subbuff) == 0 && readData[2] != '0')
+            {
+                retour = "OT:Mauvaise valeur";
+            }
+            else
+            {
+                temperatureOffset(atof(subbuff));
+                retour = "OT:" + String(temperatureOffset()) + "°C";
+            }
         }
         else if (readData[1] == 'H')
         {
             char subbuff[6];
             memcpy(subbuff, &readData[2], 6);
-            humidityOffset(atof(subbuff));
-            retour = ">" + String(sensorId) + "OT:" + humidityOffset() + "%";
+            if (atof(subbuff) == 0 && readData[2] != '0')
+            {
+                retour = "OH:Mauvaise valeur";
+            }
+            else
+            {
+                humidityOffset(atof(subbuff));
+                retour = "OH:" + String(humidityOffset()) + "%";
+            }
         }
         break;
     case 'U':
         if (readData[1] == 'C')
         {
             toCelcius();
-            retour = ">" + String(sensorId) + "U:CELCIUS";
+            retour = "U:CELCIUS";
         }
         else if (readData[1] == 'F')
         {
             toFahrenheit();
-            retour = ">" + String(sensorId) + "u:FAHRENHEIT";
+            retour = "u:FAHRENHEIT";
         }
         break;
     }
     return retour;
 }
 
-String MyDHT::readCommand(int sensorId, char *readData)
+String MyDHT::readCommand(char *readData)
 {
     String retour = "Commande inexistante";
-
     switch (readData[0])
     {
     case 'T':
-        retour = ">" + String(sensorId) + "T:" + temperatureFormatted() + "°C";
+        retour = "T:" + temperatureFormatted() + "°C";
         break;
     case 'H':
-        retour = ">" + String(sensorId) + "H:" + humidityFormatted() + "°C";
+        retour = "H:" + humidityFormatted() + "°C";
         break;
     case 'O':
         if (readData[1] == 'T')
         {
-            retour = ">" + String(sensorId) + "OT:" + temperatureOffset() + "°C";
+            retour = "OT:" + String(temperatureOffset()) + "°C";
         }
         else if (readData[1] == 'H')
         {
-            retour = ">" + String(sensorId) + "OH:" + humidityOffset() + "%";
+            retour = "OH:" + String(humidityOffset()) + "%";
         }
         break;
     case 'U':
         if (temperatureType() == TCELCIUS)
         {
-            retour = ">" + String(sensorId) + "U:CELCIUS";
+            retour = "U:CELCIUS";
         }
         else
         {
-            retour = ">" + String(sensorId) + "U:FAHRENHEIT";
+            retour = "U:FAHRENHEIT";
         }
         break;
     }
