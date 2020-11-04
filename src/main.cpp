@@ -11,15 +11,12 @@ void setup()
 
 void loop()
 {
-  try
-  {
-    commands();
-    cout << "currentTemperature : " << dht->temperature() << "°C" << endl;
-    cout << "currentHumidity : " << dht->humidity() << "%" << endl;
-  }
-  catch (const char *msg)
-  {
-    cerr << "Une erreur est survenue : " << msg << endl;
-  }
+  commands();
+  Serial.print("currentTemperature : ");
+  Serial.print(dht->temperatureFormatted());
+  Serial.println("°C");
+  Serial.print("currentHumidity : ");
+  Serial.print(dht->humidityFormatted());
+  Serial.println("%");
   delay(dht->delay());
 }

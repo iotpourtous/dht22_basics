@@ -1,13 +1,7 @@
 #ifndef myDHT_h
 #define myDHT_h
-
-#include <iostream>
-#include <exception>
-
 #include <Adafruit_Sensor.h>
 #include <DHT_U.h>
-
-using namespace std;
 
 typedef enum
 {
@@ -44,10 +38,12 @@ public:
   void toCelcius() { _temperatureType = TCELCIUS; }
   virtual float temperature();
   virtual float humidity();
+  String temperatureFormatted();
+  String humidityFormatted();
   int32_t delay();
 
-  void readCommand(int sensorId, char *readData);
-  void writeCommand(int sensorId, char *readData);
+  String readCommand(int sensorId, char *readData);
+  String writeCommand(int sensorId, char *readData);
 };
 
 extern MyDHT myDHT;

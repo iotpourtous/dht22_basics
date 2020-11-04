@@ -14,24 +14,26 @@ float MyDHT::_temperatureFromEvent()
 {
     sensors_event_t event;
     DHT_Unified::temperature().getEvent(&event);
-    float t = event.temperature;
+    /*float t = event.temperature;
     if (isnan(t))
     {
         throw "Erreur lecture température";
     }
-    return t;
+    return t;*/
+    return event.temperature;
 }
 
 float MyDHT::_humidityFromEvent()
 {
     sensors_event_t event;
     DHT_Unified::humidity().getEvent(&event);
-    float h = event.relative_humidity;
+    /*float h = event.relative_humidity;
     if (isnan(h))
     {
         throw "Erreur lecture humidité";
     }
-    return h;
+    return h;*/
+    return event.relative_humidity;
 }
 
 sensor_t MyDHT::temperatureSensor()
@@ -59,13 +61,33 @@ float MyDHT::temperature()
     return ((_temperatureType == TFAHRENHEIT) ? 1.8 * t + 32 : t) + _temperatureOffset;
 }
 
+String MyDHT::temperatureFormatted()
+{
+    if(isnan(temperature())) {
+        return "--";
+    }
+    char temperatureFormatted[10];
+    dtostrf(temperature(), 4, 2, temperatureFormatted);
+    return temperatureFormatted;
+}
+
 float MyDHT::humidity()
 {
     return _humidityFromEvent() + _humidityOffset;
 }
-
-void MyDHT::writeCommand(int sensorId, char *readData)
+String MyDHT::humidityFormatted()
 {
+    if(isnan(humidity())) {
+        return "--";
+    }
+    char humidityFormatted[10];
+    dtostrf(humidity(), 4, 2, humidityFormatted);
+    return humidityFormatted;
+}
+
+String MyDHT::writeCommand(int sensorId, char *readData)
+{
+    String retour = "Commande inexistante";
     switch (readData[0])
     {
     case 'O':
@@ -74,120 +96,64 @@ void MyDHT::writeCommand(int sensorId, char *readData)
             char subbuff[6];
             memcpy(subbuff, &readData[2], 6);
             temperatureOffset(atof(subbuff));
-            cout << ">" << sensorId << "OT:" << temperatureOffset() << "°C" << endl;
+            retour = ">" + String(sensorId) + "OT:" + temperatureOffset() + "°C";
         }
         else if (readData[1] == 'H')
         {
             char subbuff[6];
             memcpy(subbuff, &readData[2], 6);
             humidityOffset(atof(subbuff));
-            cout << ">" << sensorId << "OT:" << humidityOffset() << "%" << endl;
-        }
-        else
-        {
-            throw "Commande inexistante";
+            retour = ">" + String(sensorId) + "OT:" + humidityOffset() + "%";
         }
         break;
     case 'U':
         if (readData[1] == 'C')
         {
             toCelcius();
-            cout << ">" << sensorId << "U:" << ((temperatureType() == TCELCIUS) ? "CELCIUS" : "FAHRENHEIT") << endl;
+            retour = ">" + String(sensorId) + "U:CELCIUS";
         }
         else if (readData[1] == 'F')
         {
             toFahrenheit();
-            cout << ">" << sensorId << "U:" << ((temperatureType() == TCELCIUS) ? "CELCIUS" : "FAHRENHEIT") << endl;
+            retour = ">" + String(sensorId) + "u:FAHRENHEIT";
         }
-        else
-        {
-            throw "Commande inexistante";
-        }
-        break;
-    default:
-        throw "Commande inexistante";
         break;
     }
+    return retour;
 }
 
-void MyDHT::readCommand(int sensorId, char *readData)
+String MyDHT::readCommand(int sensorId, char *readData)
 {
+    String retour = "Commande inexistante";
+
     switch (readData[0])
     {
-    case 'C':
-        cout << "------------------------------------" << endl
-             << "Liste des commandes" << endl
-             << "'>" << sensorId << "C' : Liste des commandes" << endl
-             << "'>" << sensorId << "OT' : Lit l'offset de température" << endl
-             << "'>" << sensorId << "OH' : Lit l'offset d'humidité" << endl
-             << "'>" << sensorId << "U' : Lit l'unité de température" << endl
-             << "'>" << sensorId << "IT' : Lit les infos du capteur de température" << endl
-             << "'>" << sensorId << "IH' : Lit les infos du capteur d'humidité" << endl
-             << "'<" << sensorId << "OTXX.XX' : modifie l'offset de température" << endl
-             << "'<" << sensorId << "OHXX.XX' : modifie l'offset d'humidité" << endl
-             << "'<" << sensorId << "UC' : Change l'unité de température en Celcius" << endl
-             << "'<" << sensorId << "UF' : Change l'unité de température en Fahrenheit" << endl
-             << "------------------------------------" << endl;
-        break;
     case 'T':
-        cout << ">" << sensorId << "T:" << temperature() << "°C" << endl;
+        retour = ">" + String(sensorId) + "T:" + temperatureFormatted() + "°C";
         break;
     case 'H':
-        cout << ">" << sensorId << "H:" << humidity() << "%" << endl;
+        retour = ">" + String(sensorId) + "H:" + humidityFormatted() + "°C";
         break;
     case 'O':
         if (readData[1] == 'T')
         {
-            cout << ">" << sensorId << "OT:" << temperatureOffset() << "°C" << endl;
+            retour = ">" + String(sensorId) + "OT:" + temperatureOffset() + "°C";
         }
         else if (readData[1] == 'H')
         {
-            cout << ">" << sensorId << "OT:" << humidityOffset() << "%" << endl;
-        }
-        else
-        {
-            throw "Commande inexistante";
+            retour = ">" + String(sensorId) + "OH:" + humidityOffset() + "%";
         }
         break;
     case 'U':
-        cout << ">" << sensorId << "U:" << ((temperatureType() == TCELCIUS) ? "CELCIUS" : "FAHRENHEIT") << endl;
-        break;
-    case 'I':
-        if (readData[1] == 'T')
+        if (temperatureType() == TCELCIUS)
         {
-            sensor_t sensor = temperatureSensor();
-            cout << "------------------------------------" << endl
-                 << "Capteur de température" << endl
-                 << "Nom: " << sensor.name << endl
-                 << "Version:  " << sensor.version << endl
-                 << "Identifiant:   " << sensor.sensor_id << endl
-                 << "Delay minimun:   " << sensor.min_delay / 1000 << "Ms" << endl
-                 << "Valeur Max:   " << sensor.max_value << "°C" << endl
-                 << "Valeur Min:   " << sensor.min_value << "°C" << endl
-                 << "Resolution:  " << sensor.resolution << "°C" << endl
-                 << "------------------------------------" << endl;
-        }
-        else if (readData[1] == 'H')
-        {
-            sensor_t sensor = humiditySensor();
-            cout << "------------------------------------" << endl
-                 << "Humidity Sensor" << endl
-                 << "Nom: " << sensor.name << endl
-                 << "Version:  " << sensor.version << endl
-                 << "Identifiant:   " << sensor.sensor_id << endl
-                 << "Delay minimun:   " << sensor.min_delay / 1000 << "Ms" << endl
-                 << "Valeur Max:   " << sensor.max_value << "%" << endl
-                 << "Valeur Min:   " << sensor.min_value << "%" << endl
-                 << "Resolution:  " << sensor.resolution << "%" << endl
-                 << "------------------------------------" << endl;
+            retour = ">" + String(sensorId) + "U:CELCIUS";
         }
         else
         {
-            throw "Commande inexistante";
+            retour = ">" + String(sensorId) + "U:FAHRENHEIT";
         }
         break;
-    default:
-        throw "Commande inexistante";
-        break;
     }
+    return retour;
 }

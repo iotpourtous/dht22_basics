@@ -13,6 +13,7 @@ void commands()
     size_t bytesReceived = Serial.readBytesUntil('\n', readData, instructionMaxLength);
     if (bytesReceived > 0)
     {
+    String retour = "Commande inexistante";
       switch (readData[0])
       {
       case '<':
@@ -20,11 +21,7 @@ void commands()
         {
           char subbuff[8];
           memcpy(subbuff, &readData[2], 8);
-          dht->writeCommand(1, subbuff);
-        }
-        else
-        {
-          throw "Commande inexistante";
+          retour = dht->writeCommand(1, subbuff);
         }
         break;
       case '>':
@@ -33,16 +30,11 @@ void commands()
 
           char subbuff[8];
           memcpy(subbuff, &readData[2], 8);
-          dht->readCommand(1, subbuff);
-        }
-        else
-        {
-          throw "Commande inexistante";
+          retour = dht->readCommand(1, subbuff);
         }
         break;
-      default:
-        throw "Commande inexistante";
       }
+      Serial.println(retour);
     }
   }
 }
