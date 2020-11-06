@@ -48,7 +48,7 @@ public:
 
   int32_t delay();
 
-  String readCommand(char *readData);
+  String readCommand(char *readData, int8_t sensorId);
   String writeCommand(char *readData);
 };
 

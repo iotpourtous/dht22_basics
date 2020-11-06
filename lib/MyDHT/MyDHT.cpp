@@ -114,23 +114,40 @@ String MyDHT::writeCommand(char *readData)
         if (readData[1] == 'C')
         {
             toCelcius();
-            retour = "U:CELCIUS";
+            retour = "U:" + (temperatureType() == TCELCIUS) ? "U:CELCIUS" : "U:FAHRENHEIT";
         }
         else if (readData[1] == 'F')
         {
             toFahrenheit();
-            retour = "u:FAHRENHEIT";
+            retour = "U:" + (temperatureType() == TCELCIUS) ? "U:CELCIUS" : "U:FAHRENHEIT";
         }
         break;
     }
     return retour;
 }
 
-String MyDHT::readCommand(char *readData)
+String MyDHT::readCommand(char *readData, int8_t sensorId)
 {
     String retour = "Commande inexistante";
     switch (readData[0])
     {
+    case 'C':
+        retour = "------------------------------------\n";
+        retour += "Liste des commandes\n";
+        retour += "'>" + String(sensorId) + "C' : Liste des commandes\n";
+        retour += "'>" + String(sensorId) + "T' : Lit la température\n";
+        retour += "'>" + String(sensorId) + "H' : Lit l'humidité\n";
+        retour += "'>" + String(sensorId) + "OT' : Lit l'offset de température\n";
+        retour += "'>" + String(sensorId) + "OH' : Lit l'offset d'humidité\n";
+        retour += "'>" + String(sensorId) + "U' : Lit l'unité de température\n";
+        retour += "'>" + String(sensorId) + "IT' : Lit les infos du capteur de température\n";
+        retour += "'>" + String(sensorId) + "IH' : Lit les infos du capteur d'humidité\n";
+        retour += "'<" + String(sensorId) + "OTXX.XX' : modifie l'offset de température\n";
+        retour += "'<" + String(sensorId) + "OHXX.XX' : modifie l'offset d'humidité\n";
+        retour += "'<" + String(sensorId) + "UC' : Change l'unité de température en Celcius\n";
+        retour += "'<" + String(sensorId) + "UF' : Change l'unité de température en Fahrenheit\n";
+        retour += "------------------------------------";
+        break;
     case 'T':
         retour = "T:" + temperatureFormatted() + "°C";
         break;
@@ -148,13 +165,38 @@ String MyDHT::readCommand(char *readData)
         }
         break;
     case 'U':
-        if (temperatureType() == TCELCIUS)
+        retour = "U:" + (temperatureType() == TCELCIUS) ? "U:CELCIUS" : "U:FAHRENHEIT";
+        break;
+    case 'I':
+        if (readData[1] == 'T')
         {
-            retour = "U:CELCIUS";
+            sensor_t sensor = _temperatureSensor();
+            retour = "IT\n";
+            retour += "------------------------------------\n";
+            retour += "Capteur de température\n";
+            retour += "Nom: " + String(sensor.name) + "\n";
+            retour += "Version:  " + String(sensor.version) + "\n";
+            retour += "Identifiant:   " + String(sensor.sensor_id) + "\n";
+            retour += "Delay minimun:   " + String(sensor.min_delay / 1000) + "Ms\n";
+            retour += "Valeur Max:   " + String(sensor.max_value) + "°C\n";
+            retour += "Valeur Min:   " + String(sensor.min_value) + "°C\n";
+            retour += "Resolution:  " + String(sensor.resolution) + "°C\n";
+            retour += "------------------------------------";
         }
-        else
+        else if (readData[1] == 'H')
         {
-            retour = "U:FAHRENHEIT";
+            sensor_t sensor = _humiditySensor();
+            retour = "IH\n";
+            retour += "------------------------------------\n";
+            retour += "Capteur d'humidité\n";
+            retour += "Nom: " + String(sensor.name) + "\n";
+            retour += "Version:  " + String(sensor.version) + "\n";
+            retour += "Identifiant:   " + String(sensor.sensor_id) + "\n";
+            retour += "Delay minimun:   " + String(sensor.min_delay / 1000) + "Ms\n";
+            retour += "Valeur Max:   " + String(sensor.max_value) + "%\n";
+            retour += "Valeur Min:   " + String(sensor.min_value) + "%\n";
+            retour += "Resolution:  " + String(sensor.resolution) + "%\n";
+            retour += "------------------------------------";
         }
         break;
     }

@@ -16,7 +16,7 @@ void commands()
       switch (readData[0])
       {
       case '<':
-        if (readData[1] == DHT22_SENSOR_ID)
+        if ((readData[1] - '0') == DHT22_SENSOR_ID)
         {
           char subbuff[8];
           memcpy(subbuff, &readData[2], 8);
@@ -24,11 +24,11 @@ void commands()
         }
         break;
       case '>':
-        if (readData[1] == DHT22_SENSOR_ID)
+        if ((readData[1] - '0') == DHT22_SENSOR_ID)
         {
           char subbuff[8];
           memcpy(subbuff, &readData[2], 8);
-          retour = ">" + String(DHT22_SENSOR_ID) + dht->readCommand(subbuff);
+          retour = ">" + String(DHT22_SENSOR_ID) + dht->readCommand(subbuff, DHT22_SENSOR_ID);
         }
         break;
       }

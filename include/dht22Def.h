@@ -10,6 +10,6 @@
 //DHT22
 #define DHTPIN 4
 #define DHTTYPE DHT22
-#define DHT22_SENSOR_ID '1'
+#define DHT22_SENSOR_ID 1
 
 #endif
