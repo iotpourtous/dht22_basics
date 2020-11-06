@@ -9,14 +9,20 @@ void setup()
   dht->begin();
 }
 
+String formatFloat(float value)
+{
+  char retour[] = "--";
+  if (!isnan(value))
+  {
+    sprintf(retour, "%.1f", value);
+  }
+  return String(retour);
+}
+
 void loop()
 {
   commands();
-  Serial.print("currentTemperature : ");
-  Serial.print(dht->temperatureFormatted());
-  Serial.println("°C");
-  Serial.print("currentHumidity : ");
-  Serial.print(dht->humidityFormatted());
-  Serial.println("%");
+  Serial.println("currentTemperature : " + formatFloat(dht->temperature()) + "°C");
+  Serial.println("currentHumidity : " + formatFloat(dht->humidity()) + "%");
   delay(dht->delay());
 }

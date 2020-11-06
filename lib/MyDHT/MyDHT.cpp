@@ -44,30 +44,9 @@ float MyDHT::temperature()
     return ((_temperatureType == TFAHRENHEIT) ? 1.8 * t + 32 : t) + _temperatureOffset;
 }
 
-String MyDHT::temperatureFormatted()
-{
-    if (isnan(temperature()))
-    {
-        return "--";
-    }
-    char temperatureFormatted[10];
-    dtostrf(temperature(), 4, 2, temperatureFormatted);
-    return temperatureFormatted;
-}
-
 float MyDHT::humidity()
 {
     return _humidityFromEvent() + _humidityOffset;
-}
-String MyDHT::humidityFormatted()
-{
-    if (isnan(humidity()))
-    {
-        return "--";
-    }
-    char humidityFormatted[10];
-    dtostrf(humidity(), 4, 2, humidityFormatted);
-    return humidityFormatted;
 }
 
 int32_t MyDHT::delay()
@@ -149,10 +128,28 @@ String MyDHT::readCommand(char *readData, int8_t sensorId)
         retour += "------------------------------------";
         break;
     case 'T':
-        retour = "T:" + temperatureFormatted() + "°C";
+        if (isnan(temperature()))
+        {
+            retour = "OT:lecture de la température impossible";
+        }
+        else
+        {
+            char temperatureFormated[5];
+            sprintf(temperatureFormated, "%.1f", temperature());
+            retour = "OT:" + String(temperatureFormated) + "°C";
+        }
         break;
     case 'H':
-        retour = "H:" + humidityFormatted() + "°C";
+        if (isnan(humidity()))
+        {
+            retour = "OT:lecture de l'humidité impossible";
+        }
+        else
+        {
+            char humidityFormated[5];
+            sprintf(humidityFormated, "%.1f", temperature());
+            retour = "OH:" + String(humidityFormated) + "%";
+        }
         break;
     case 'O':
         if (readData[1] == 'T')

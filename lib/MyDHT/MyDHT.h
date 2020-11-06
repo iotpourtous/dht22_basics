@@ -41,10 +41,7 @@ public:
   void toCelcius() { _temperatureType = TCELCIUS; }
 
   virtual float temperature();
-  String temperatureFormatted();
-
   virtual float humidity();
-  String humidityFormatted();
 
   int32_t delay();
 
