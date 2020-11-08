@@ -130,25 +130,25 @@ String MyDHT::readCommand(char *readData, int8_t sensorId)
     case 'T':
         if (isnan(temperature()))
         {
-            retour = "OT:lecture de la température impossible";
+            retour = "T:lecture de la température impossible";
         }
         else
         {
             char temperatureFormated[5];
             sprintf(temperatureFormated, "%.1f", temperature());
-            retour = "OT:" + String(temperatureFormated) + "°C";
+            retour = "T:" + String(temperatureFormated) + "°C";
         }
         break;
     case 'H':
         if (isnan(humidity()))
         {
-            retour = "OT:lecture de l'humidité impossible";
+            retour = "H:lecture de l'humidité impossible";
         }
         else
         {
             char humidityFormated[5];
             sprintf(humidityFormated, "%.1f", temperature());
-            retour = "OH:" + String(humidityFormated) + "%";
+            retour = "H:" + String(humidityFormated) + "%";
         }
         break;
     case 'O':
