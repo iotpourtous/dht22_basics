@@ -38,13 +38,13 @@ sensor_t MyDHT::_humiditySensor()
     return sensor;
 }
 
-float MyDHT::temperature()
+float MyDHT::temperature(void)
 {
     float t = _temperatureFromEvent();
     return ((_temperatureType == TFAHRENHEIT) ? 1.8 * t + 32 : t) + _temperatureOffset;
 }
 
-float MyDHT::humidity()
+float MyDHT::humidity(void)
 {
     return _humidityFromEvent() + _humidityOffset;
 }
@@ -54,64 +54,51 @@ int32_t MyDHT::delay()
     return _temperatureSensor().min_delay / 1000;
 }
 
-String MyDHT::writeCommand(char *readData)
+String MyDHT::writeCommand(String command)
 {
-    String retour = "Commande inexistante";
-    switch (readData[0])
+    if (command.startsWith(TEMPERATURE_OFFSET_COMMAND))
     {
-    case 'O':
-        if (readData[1] == 'T')
+        String data = command.substring(2);
+        if (isNotIntValue(data))
         {
-            char subbuff[6];
-            memcpy(subbuff, &readData[2], 6);
-            if (atof(subbuff) == 0 && readData[2] != '0')
-            {
-                retour = "OT:Mauvaise valeur";
-            }
-            else
-            {
-                temperatureOffset(atof(subbuff));
-                retour = "OT:" + String(temperatureOffset()) + "°C";
-            }
+            return "Commande incorrecte";
         }
-        else if (readData[1] == 'H')
-        {
-            char subbuff[6];
-            memcpy(subbuff, &readData[2], 6);
-            if (atof(subbuff) == 0 && readData[2] != '0')
-            {
-                retour = "OH:Mauvaise valeur";
-            }
-            else
-            {
-                humidityOffset(atof(subbuff));
-                retour = "OH:" + String(humidityOffset()) + "%";
-            }
-        }
-        break;
-    case 'U':
-        if (readData[1] == 'C')
-        {
-            toCelcius();
-            retour = "U:" + (temperatureType() == TCELCIUS) ? "U:CELCIUS" : "U:FAHRENHEIT";
-        }
-        else if (readData[1] == 'F')
-        {
-            toFahrenheit();
-            retour = "U:" + (temperatureType() == TCELCIUS) ? "U:CELCIUS" : "U:FAHRENHEIT";
-        }
-        break;
+        temperatureOffset(data.toInt());
+        return "OK";
     }
-    return retour;
+    else if (command.startsWith(HUMIDITY_OFFSET_COMMAND))
+    {
+        String data = command.substring(2);
+        if (isNotIntValue(data))
+        {
+            return "Commande incorrecte";
+        }
+        humidityOffset(data.toInt());
+        return "OK";
+    }
+    else if (command.equals(CELCIUS_TEMPERATURE_COMMAND))
+    {
+        toCelcius();
+        return "OK";
+    }
+    else if (command.equals(FAHRENHEIT_TEMPERATURE_COMMAND))
+    {
+        toFahrenheit();
+        return "OK";
+    }
+    return "Commande inexistante";
 }
 
-String MyDHT::readCommand(char *readData, int8_t sensorId)
+boolean MyDHT::isNotIntValue(String data)
 {
-    String retour = "Commande inexistante";
-    switch (readData[0])
+    return data.toInt() == 0 && data.charAt(0) != '0';
+}
+
+String MyDHT::readCommand(String command, int8_t sensorId)
+{
+    if (command.equals(LIST_COMMAND))
     {
-    case 'C':
-        retour = "------------------------------------\n";
+        String retour = "------------------------------------\n";
         retour += "Liste des commandes\n";
         retour += "'>" + String(sensorId) + "C' : Liste des commandes\n";
         retour += "'>" + String(sensorId) + "T' : Lit la température\n";
@@ -126,76 +113,64 @@ String MyDHT::readCommand(char *readData, int8_t sensorId)
         retour += "'<" + String(sensorId) + "UC' : Change l'unité de température en Celcius\n";
         retour += "'<" + String(sensorId) + "UF' : Change l'unité de température en Fahrenheit\n";
         retour += "------------------------------------";
-        break;
-    case 'T':
-        if (isnan(temperature()))
-        {
-            retour = "T:lecture de la température impossible";
-        }
-        else
-        {
-            char temperatureFormated[5];
-            sprintf(temperatureFormated, "%.1f", temperature());
-            retour = "T:" + String(temperatureFormated) + "°C";
-        }
-        break;
-    case 'H':
-        if (isnan(humidity()))
-        {
-            retour = "H:lecture de l'humidité impossible";
-        }
-        else
-        {
-            char humidityFormated[5];
-            sprintf(humidityFormated, "%.1f", temperature());
-            retour = "H:" + String(humidityFormated) + "%";
-        }
-        break;
-    case 'O':
-        if (readData[1] == 'T')
-        {
-            retour = "OT:" + String(temperatureOffset()) + "°C";
-        }
-        else if (readData[1] == 'H')
-        {
-            retour = "OH:" + String(humidityOffset()) + "%";
-        }
-        break;
-    case 'U':
-        retour = "U:" + (temperatureType() == TCELCIUS) ? "U:CELCIUS" : "U:FAHRENHEIT";
-        break;
-    case 'I':
-        if (readData[1] == 'T')
-        {
-            sensor_t sensor = _temperatureSensor();
-            retour = "IT\n";
-            retour += "------------------------------------\n";
-            retour += "Capteur de température\n";
-            retour += "Nom: " + String(sensor.name) + "\n";
-            retour += "Version:  " + String(sensor.version) + "\n";
-            retour += "Identifiant:   " + String(sensor.sensor_id) + "\n";
-            retour += "Delay minimun:   " + String(sensor.min_delay / 1000) + "Ms\n";
-            retour += "Valeur Max:   " + String(sensor.max_value) + "°C\n";
-            retour += "Valeur Min:   " + String(sensor.min_value) + "°C\n";
-            retour += "Resolution:  " + String(sensor.resolution) + "°C\n";
-            retour += "------------------------------------";
-        }
-        else if (readData[1] == 'H')
-        {
-            sensor_t sensor = _humiditySensor();
-            retour = "IH\n";
-            retour += "------------------------------------\n";
-            retour += "Capteur d'humidité\n";
-            retour += "Nom: " + String(sensor.name) + "\n";
-            retour += "Version:  " + String(sensor.version) + "\n";
-            retour += "Identifiant:   " + String(sensor.sensor_id) + "\n";
-            retour += "Delay minimun:   " + String(sensor.min_delay / 1000) + "Ms\n";
-            retour += "Valeur Max:   " + String(sensor.max_value) + "%\n";
-            retour += "Valeur Min:   " + String(sensor.min_value) + "%\n";
-            retour += "Resolution:  " + String(sensor.resolution) + "%\n";
-            retour += "------------------------------------";
-        }
-        break;
+        return retour;
     }
-    return retour;
+    else if (command.equals("T"))
+    {
+        return (isnan(temperature()))
+                   ? "T:lecture de la température impossible"
+                   : "T:" + String(temperature()) + "°C";
+    }
+    else if (command.equals("H"))
+    {
+        return (isnan(temperature()))
+                   ? "H:lecture de l'humidité impossible"
+                   : "H:" + String(humidity()) + "%";
+    }
+    else if (command.equals("OT"))
+    {
+        return "OT:" + String(temperatureOffset()) + "°C";
+    }
+    else if (command.equals("OH"))
+    {
+        return "OH:" + String(humidityOffset()) + "%";
+    }
+    else if (command.equals("U"))
+    {
+        return "U:" + (temperatureType() == TCELCIUS) ? "U:CELCIUS" : "U:FAHRENHEIT";
+    }
+    else if (command.equals("IT"))
+    {
+        sensor_t sensor = _temperatureSensor();
+        String retour = "------------------------------------\n";
+        retour += "Capteur de température\n";
+        retour += "Nom: " + String(sensor.name) + "\n";
+        retour += "Version:  " + String(sensor.version) + "\n";
+        retour += "Identifiant:   " + String(sensor.sensor_id) + "\n";
+        retour += "Delay minimun:   " + String(sensor.min_delay / 1000) + "Ms\n";
+        retour += "Valeur Max:   " + String(sensor.max_value) + "°C\n";
+        retour += "Valeur Min:   " + String(sensor.min_value) + "°C\n";
+        retour += "Resolution:  " + String(sensor.resolution) + "°C\n";
+        retour += "------------------------------------";
+        return retour;
+    }
+    else if (command.equals("IH"))
+    {
+        sensor_t sensor = _humiditySensor();
+        String retour = "------------------------------------\n";
+        retour += "Capteur d'humidité\n";
+        retour += "Nom: " + String(sensor.name) + "\n";
+        retour += "Version:  " + String(sensor.version) + "\n";
+        retour += "Identifiant:   " + String(sensor.sensor_id) + "\n";
+        retour += "Delay minimun:   " + String(sensor.min_delay / 1000) + "Ms\n";
+        retour += "Valeur Max:   " + String(sensor.max_value) + "%\n";
+        retour += "Valeur Min:   " + String(sensor.min_value) + "%\n";
+        retour += "Resolution:  " + String(sensor.resolution) + "%\n";
+        retour += "------------------------------------";
+        return retour;
+    }
+    else
+    {
+        return "Commande inexistante";
+    }
 }

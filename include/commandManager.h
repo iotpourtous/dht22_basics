@@ -3,43 +3,24 @@
 
 #include "dht22Var.h"
 
-String commands(char *readData)
+String commands(String command)
 {
-  String retour = "Commande inexistante";
-  switch (readData[0])
-  {
-  case '<':
-    if ((readData[1] - '0') == DHT22_SENSOR_ID)
-    {
-      char subbuff[8];
-      memcpy(subbuff, &readData[2], 8);
-      retour = "<" + String(DHT22_SENSOR_ID) + dht->writeCommand(subbuff);
-    }
-    break;
-  case '>':
-    if ((readData[1] - '0') == DHT22_SENSOR_ID)
-    {
-      char subbuff[8];
-      memcpy(subbuff, &readData[2], 8);
-      retour = ">" + String(DHT22_SENSOR_ID) + dht->readCommand(subbuff, DHT22_SENSOR_ID);
-    }
-    break;
+  if(command.substring(0,2).equals("<" + String(DHT22_SENSOR_ID))){
+    return dht->writeCommand(command.substring(2));
+  } else if(command.substring(0,2).equals(">" + String(DHT22_SENSOR_ID))){
+    return dht->readCommand(command.substring(2), DHT22_SENSOR_ID);
   }
-  return retour;
+  return "Commande inexistante";
 }
+
 void commandsFromSerial()
 {
-  if (Serial.available() > 0)
-  {
-    char readData[MAX_COMMAND_SIZE];
-
-    size_t bytesReceived = Serial.readBytesUntil('\n', readData, MAX_COMMAND_SIZE);
-    if (bytesReceived > 0)
-    {
-      Serial.println(commands(readData));
+    if(Serial.available()){
+      String command = Serial.readStringUntil('\n');
+      Serial.println(commands(command));
     }
-  }
 }
+
 void commandsFromBT()
 {
   if (SerialBT.available() > 0)

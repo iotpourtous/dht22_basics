@@ -1,0 +1,25 @@
+###########################################
+# Syntax Coloring Map For DHT-sensor-library
+###########################################
+
+###########################################
+# Datatypes (KEYWORD1)
+###########################################
+
+MyDHT   KEYWORD1
+
+###########################################
+# Methods and Functions (KEYWORD2)
+###########################################
+
+temperatureOffset   KEYWORD2
+humidityOffset  KEYWORD2
+temperatureType KEYWORD2
+toFahrenheit    KEYWORD2
+toCelcius	KEYWORD2
+temperature	KEYWORD2
+humidity	KEYWORD2
+delay   KEYWORD2
+readCommand2	KEYWORD2
+writeCommand	KEYWORD2
+
