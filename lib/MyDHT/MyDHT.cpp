@@ -31,38 +31,9 @@ int32_t MyDHT::delay()
     return _temperatureSensor.min_delay / 1000;
 }
 
-String MyDHT::writeCommand(String command)
+String MyDHT::executeCommand(String command)
 {
-    if (command.startsWith(TEMPERATURE_OFFSET_COMMAND))
-    {
-        temperatureOffset(command.substring(2).toFloat());
-        return "OK";
-    }
-    else if (command.startsWith(HUMIDITY_OFFSET_COMMAND))
-    {
-        humidityOffset(command.substring(2).toFloat());
-        return "OK";
-    }
-    return "Commande inexistante";
-}
-
-String MyDHT::readCommand(String command)
-{
-    if (command.equals(LIST_COMMAND))
-    {
-        String retour = "------------------------------------\n";
-        retour += "Liste des commandes\n";
-        retour += ">" + (String)_sensorId + LIST_COMMAND + " : Liste des commandes\n";
-        retour += ">" + (String)_sensorId + READ_INFORMATIONS_COMMAND + " : Lit la température et l'humidité\n";
-        retour += ">" + (String)_sensorId + READ_TEMPERATURE_SENSOR_INFORMATION_COMMAND + " : Lit les infos du capteur de température\n";
-        retour += ">" + (String)_sensorId + READ_HUMIDITY_SENSOR_INFORMATION_COMMAND + " : Lit les infos du capteur d'humidité\n";
-        retour += "<" + (String)_sensorId + TEMPERATURE_OFFSET_COMMAND + "XX.XX : modifie l'offset de température\n";
-        retour += "<" + (String)_sensorId + HUMIDITY_OFFSET_COMMAND + "XX.XX : modifie l'offset d'humidité\n";
-        retour += "------------------------------------";
-        return retour;
-    }
-
-    else if (command.equals("I"))
+    if (command.equals(READ_INFORMATIONS_COMMAND))
     {
         String retour = "------------------------------------\n";
         retour += "Température : ";
@@ -106,8 +77,30 @@ String MyDHT::readCommand(String command)
         retour += "------------------------------------";
         return retour;
     }
+    if (command.startsWith(TEMPERATURE_OFFSET_COMMAND))
+    {
+        float value = command.substring(TEMPERATURE_OFFSET_COMMAND.length()).toFloat();
+        if (value != 0 || (value == 0 && command.substring(2).startsWith("0")))
+            temperatureOffset(value);
+        return executeCommand(READ_INFORMATIONS_COMMAND);
+    }
+    else if (command.startsWith(HUMIDITY_OFFSET_COMMAND))
+    {
+        float value = command.substring(HUMIDITY_OFFSET_COMMAND.length()).toFloat();
+        if (value != 0 || (value == 0 && command.substring(2).startsWith("0")))
+            humidityOffset(value);
+        return executeCommand(READ_INFORMATIONS_COMMAND);
+    }
     else
     {
-        return "Commande inexistante";
+        String retour = "------------------------------------\n";
+        retour += "Liste des commandes\n";
+        retour += (String)_sensorId + READ_INFORMATIONS_COMMAND + " : Affiche la température et l'humidité\n";
+        retour += (String)_sensorId + READ_TEMPERATURE_SENSOR_INFORMATION_COMMAND + " : Affiche les infos du capteur de température\n";
+        retour += (String)_sensorId + READ_HUMIDITY_SENSOR_INFORMATION_COMMAND + " : Affiche les infos du capteur d'humidité\n";
+        retour += (String)_sensorId + TEMPERATURE_OFFSET_COMMAND + "[XX.XX] : modifie l'offset de température si XX.XX est présent et affiche la température et l'humidité\n";
+        retour += (String)_sensorId + HUMIDITY_OFFSET_COMMAND + "[XX.XX] : modifie l'offset d'humidité si XX.XX est présent et affiche la température et l'humidité\n";
+        retour += "------------------------------------";
+        return retour;
     }
 }

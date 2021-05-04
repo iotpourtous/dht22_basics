@@ -15,11 +15,11 @@ private:
   sensor_t _temperatureSensor;
   sensor_t _humiditySensor;
 
-  String READ_INFORMATIONS_COMMAND = "I";
-  String READ_TEMPERATURE_SENSOR_INFORMATION_COMMAND = "TI";
-  String READ_HUMIDITY_SENSOR_INFORMATION_COMMAND = "HI";
-  String TEMPERATURE_OFFSET_COMMAND = "OT";
-  String HUMIDITY_OFFSET_COMMAND = "OH";
+  String READ_INFORMATIONS_COMMAND = "i";
+  String READ_TEMPERATURE_SENSOR_INFORMATION_COMMAND = "it";
+  String READ_HUMIDITY_SENSOR_INFORMATION_COMMAND = "ih";
+  String TEMPERATURE_OFFSET_COMMAND = "to";
+  String HUMIDITY_OFFSET_COMMAND = "ho";
   String LIST_COMMAND = "C";
 
 public:
@@ -38,8 +38,7 @@ public:
 
   int32_t delay();
 
-  String readCommand(String command);
-  String writeCommand(String command);
+  String executeCommand(String command);
 };
 
 extern MyDHT myDHT;

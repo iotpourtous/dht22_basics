@@ -7,17 +7,17 @@ void setup()
 {
   Serial.begin(SERIAL_BAUD);
   dht.begin();
-  SerialBT.begin("789789789798");
-
+  SerialBT.begin(BT_ACCESS_POINT);
 }
 
 void loop()
 {
   commandsFromSerial();
   commandsFromBT();
-  
-  Serial.println("currentTemperature : " + String(dht.temperature()) + "°C");
-  Serial.println("currentHumidity : " + String(dht.humidity()) + "%");
-  
+  if (DEBUG)
+  {
+    Serial.println("currentTemperature : " + String(dht.temperature()) + "°C");
+    Serial.println("currentHumidity : " + String(dht.humidity()) + "%");
+  }
   delay(dht.delay());
 }
