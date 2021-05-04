@@ -14,9 +14,6 @@ MyDHT   KEYWORD1
 
 temperatureOffset   KEYWORD2
 humidityOffset  KEYWORD2
-temperatureType KEYWORD2
-toFahrenheit    KEYWORD2
-toCelcius	KEYWORD2
 temperature	KEYWORD2
 humidity	KEYWORD2
 delay   KEYWORD2

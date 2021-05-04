@@ -5,11 +5,7 @@
 #include "BluetoothSerial.h"
 #include "dht22Def.h"
 
-temperature_type_t temperatureType  = TCELCIUS;
-float temperatureOffset = 0;  
-float humidityOffset = 0;
-
-MyDHT dht(DHTPIN, DHTTYPE, temperatureType, temperatureOffset, humidityOffset);
+MyDHT dht(DHTPIN, DHTTYPE, DHT22_SENSOR_ID);
 
 BluetoothSerial SerialBT;
 
