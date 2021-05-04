@@ -6,8 +6,8 @@
 void setup()
 {
   Serial.begin(SERIAL_BAUD);
-  dht->begin();
-  SerialBT.begin("ESP32");
+  dht.begin();
+  SerialBT.begin("789789789798");
 
 }
 
@@ -15,9 +15,9 @@ void loop()
 {
   commandsFromSerial();
   commandsFromBT();
-  /*
-  Serial.println("currentTemperature : " + String(dht->temperature()) + "°C");
-  Serial.println("currentHumidity : " + String(dht->humidity()) + "%");
-  */
-  delay(dht->delay());
+  
+  Serial.println("currentTemperature : " + String(dht.temperature()) + "°C");
+  Serial.println("currentHumidity : " + String(dht.humidity()) + "%");
+  
+  delay(dht.delay());
 }

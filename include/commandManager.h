@@ -6,9 +6,9 @@
 String commands(String command)
 {
   if(command.substring(0,2).equals("<" + String(DHT22_SENSOR_ID))){
-    return dht->writeCommand(command.substring(2));
+    return dht.writeCommand(command.substring(2));
   } else if(command.substring(0,2).equals(">" + String(DHT22_SENSOR_ID))){
-    return dht->readCommand(command.substring(2), DHT22_SENSOR_ID);
+    return dht.readCommand(command.substring(2), DHT22_SENSOR_ID);
   }
   return "Commande inexistante";
 }
