@@ -26,7 +26,7 @@ float MyDHT::humidity(void)
     return event.relative_humidity + _humidityOffset;
 }
 
-int32_t MyDHT::delay()
+int MyDHT::delay()
 {
     return _temperatureSensor.min_delay / 1000;
 }
